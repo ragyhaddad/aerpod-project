@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-controller-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels: # Match 
+      role: nfs
+  template:
+    metadata:
+      labels:
+        role: nfs 
+    spec:
+      containers:
+      - name: nfs-controller-container
+        image: gcr.io/dbtx-pipeline/nfs-server:latest
+        ports:
+        - containerPort: 3000 
+          name: nfs-api-port 
+        - containerPort: 2049 
+          name: nfs
+        - containerPort: 111
+          name: udp
+        - containerPort: 20048
+          name: rpc
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - mountPath: /exports
+            name: aero-nfs-claim
+      volumes:
+      - name: aero-nfs-claim 
+        persistentVolumeClaim:
+          claimName: aero-nfs-claim

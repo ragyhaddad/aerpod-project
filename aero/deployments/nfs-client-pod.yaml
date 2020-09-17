@@ -1,0 +1,30 @@
+# This Pod will act as our NFS client
+# Where the filesystem lives, it has the same label role 
+# as the service
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nfs-server-pod
+  labels:
+    role: nfs
+spec:
+  containers:
+    - name: nfs-server-pod
+      image: k8s.gcr.io/volume-nfs:0.8
+      ports:
+          - name: nfs
+            containerPort: 2049
+          - name: mountd
+            containerPort: 20048
+          - name: rpcbind
+            containerPort: 111
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - mountPath: /exports
+          name: aero-nfs-claim
+  volumes:
+  - name: aero-nfs-claim
+    persistentVolumeClaim:
+      claimName: aero-nfs-claim
+

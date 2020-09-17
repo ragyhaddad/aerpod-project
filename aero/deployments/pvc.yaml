@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: aero-nfs-claim
+spec:
+ accessModes:
+ - ReadWriteMany
+ storageClassName: ""
+ volumeName: aero-nfs-pv # Must Match persistent volume
+ resources:
+   requests:
+     storage: 1Gi

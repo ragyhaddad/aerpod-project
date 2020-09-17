@@ -1,0 +1,21 @@
+import setuptools
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+setuptools.setup(
+    name='aero',  
+    version='0.0.1',
+    scripts=['aero/aero-cli'] ,
+    author="Ragy Haddad",
+    author_email="ragy",
+    description="A lightweight kubernetes worflow orchestrator",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="Pending",
+    packages=setuptools.find_packages(),
+    install_requires = ["tinydb","kubernetes","dill","flask"] ,
+    classifiers=[
+         "Programming Language :: Python :: 3",
+         "License :: OSI Approved :: MIT License",
+         "Operating System :: OS Independent",
+    ],
+ )

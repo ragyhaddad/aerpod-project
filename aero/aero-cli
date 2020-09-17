@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+# Author: Ragy Haddad
+import sys,os,argparse
+from aero.adapters import NFSAdapter
+
+def main():
+    parser = argparse.ArgumentParser(description="Aero Command Line Client")
+    subs = parser.add_subparsers(dest='mode')
+    # Scheduler 
+    sched_parser = subs.add_parser("sched")
+    sched_parser.add_argument("input")
+    # Execute Command On NFS Client (Dev Only)
+    exec_parser = subs.add_parser("exec")
+    exec_parser.add_argument("command")
+    # Attach To Deploments
+    attach_parser = subs.add_parser("td")
+    attach_parser.add_argument("pipeline_name")
+    # Attach To Deploments
+    attach_parser = subs.add_parser("attach")
+    attach_parser.add_argument("target",default="fs")
+    # FileSystem
+    fs_parser = subs.add_parser("fs")
+    fs_subparsers_parser = fs_parser.add_subparsers(dest="fs_mode")
+    # LIST
+    ls_parser = fs_subparsers_parser.add_parser("ls")
+    ls_parser.add_argument("nfs_path",help="List directory on NFS client",default=".")
+    # MKDIR
+    mkdir_parser = fs_subparsers_parser.add_parser("mkdir")
+    mkdir_parser.add_argument("nfs_path")
+    # RM
+    rm_parser = fs_subparsers_parser.add_parser("rm")
+    rm_parser.add_argument("-r","--recurse",help="Remove a directory from nfs-client",action='store_true')
+    rm_parser.add_argument("nfs_fpath")
+    # CP 
+    cp_parser = fs_subparsers_parser.add_parser("cp")
+    cp_parser.add_argument("-r","--recurse",help="Push directory to nfs-client",action='store_true')
+    cp_parser.add_argument("local_fpath")
+    cp_parser.add_argument("nfs_fpath")
+    # Sync To a Bucket
+    rsync_parser = fs_subparsers_parser.add_parser("sync")
+    rsync_parser.add_argument("-b","--bucket",help="Synce Aero Filesystem to cloud")
+    # ARGS
+    args = parser.parse_args()
+    # FileSystem
+    if args.mode == 'fs':
+        nfs_adapter = NFSAdapter(port=3000,address="localhost")
+        if args.fs_mode == "ls":
+            nfs_path = args.nfs_path
+            nfs_adapter.ls_cmd(nfs_path)
+        if args.fs_mode == "cp":
+            local_path = args.local_fpath
+            nfs_fpath = args.nfs_fpath
+            nfs_adapter.cp_cmd_file(local_path,nfs_fpath)
+    # Attach to Deployment   
+    if args.mode == "attach":
+        nfs_adapter = NFSAdapter(port=3000,address="localhost")
+        if args.target == "fs":
+            nfs_adapter.attach_nfs()
+    # Attach to Terminal Dashboard
+    if args.mode == "td":
+        from aero.dashboards import TerminalDashboard 
+        td = TerminalDashboard() 
+        td.stream_progress(args.pipeline_name)
+    # Start a cron schedule for a pipeline 
+    if args.mode == "sched":
+        pass
+    
+
+            
+if __name__ == "__main__":
+    sys.exit(main())

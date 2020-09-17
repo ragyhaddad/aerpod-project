@@ -1,0 +1,33 @@
+# Author: Ragy Haddad
+# This Pod will act as our NFS client
+# Where the filesystem lives, it has the same label role 
+# as the service
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nfs-custom
+  labels:
+    role: nfs
+spec:
+  containers:
+    - name: nfs-custom-pod
+      image: gcr.io/dbtx-pipeline/nfs-server:latest
+      ports:
+          - name: nfs
+            containerPort: 2049
+          - name: mountd
+            containerPort: 20048
+          - name: nfs-api-port
+            containerPort: 3000 # HTTP Port for inside container
+          - name: udp 
+            containerPort: 111
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - mountPath: /exports
+          name: aero-nfs-claim
+  volumes:
+  - name: aero-nfs-claim
+    persistentVolumeClaim:
+      claimName: aero-nfs-claim
+
